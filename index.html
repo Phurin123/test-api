@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ทดสอบ API วิเคราะห์ภาพ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    img {
+      max-width: 100%;
+      margin: 10px 0;
+      border: 2px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h2>อัปโหลดภาพเพื่อวิเคราะห์</h2>
+
+  <input type="file" id="imageInput" accept="image/*"><br><br>
+  <label>API Key: <input type="text" id="apiKey" placeholder="ใส่ API Key"></label><br><br>
+
+  <button onclick="uploadAndAnalyze()">อัปโหลดและวิเคราะห์</button>
+
+  <h3>ผลลัพธ์:</h3>
+  <p id="statusText">-</p>
+  <img id="processedImage" alt="Processed Image" hidden>
+  <img id="blurredImage" alt="Blurred Image" hidden>
+
+  <script>
+    async function uploadAndAnalyze() {
+      const fileInput = document.getElementById('imageInput');
+      const apiKey = document.getElementById('apiKey').value;
+
+      if (!fileInput.files[0]) {
+        alert('กรุณาเลือกภาพ');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+      formData.append('analysis_types', JSON.stringify(["porn", "weapon", "cigarette"])); // ตัวอย่าง
+      formData.append('thresholds', JSON.stringify({ "porn": 0.6, "weapon": 0.5, "cigarette": 0.5 }));
+
+      const response = await fetch('http://localhost:5000/analyze-image', {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey
+        },
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่ทราบสาเหตุ'));
+        return;
+      }
+
+      document.getElementById('statusText').textContent = 'สถานะ: ' + result.status;
+
+      const processedImg = document.getElementById('processedImage');
+      processedImg.src = result.processed_image_url;
+      processedImg.hidden = false;
+
+      const blurredImg = document.getElementById('blurredImage');
+      blurredImg.src = result.processed_blurred_image_url;
+      blurredImg.hidden = false;
+    }
+  </script>
+</body>
+</html>
