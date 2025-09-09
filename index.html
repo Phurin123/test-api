@@ -43,7 +43,7 @@
       formData.append('analysis_types', JSON.stringify(["porn", "weapon", "cigarette"])); // ตัวอย่าง
       formData.append('thresholds', JSON.stringify({ "porn": 0.6, "weapon": 0.5, "cigarette": 0.5 }));
 
-      const response = await fetch('https://objexify.dpdns.org//analyze-image', {
+      const response = await fetch('https://objexify.dpdns.org/analyze-image', {
         method: 'POST',
         headers: {
           'x-api-key': apiKey
